@@ -140,3 +140,14 @@ Usage: <class_name>.update(<_id>, <dictionary>)
 (hbnb) ["[User] (98bea5de-9cb0-4d78-8a9d-c4de03521c30) {'updated_at': datetime.datetime(2020, 2, 19, 21, 47, 29, 134362), 'name': 'Fred the Frog', 'age': 9, 'id': '98bea5de-9cb0-4d78-8a9d-c4de03521c30', 'created_at': datetime.datetime(2020, 2, 19, 21, 47, 29, 134343)}"]
 ```
 <br>
+<br>
+<br>
+<center> <h2>About This Fork</h2> </center>
+
+This repository is forked from [justinmajetich/AirBnB_clone](https://github.com/justinmajetich/AirBnB_clone), an existing implementation of the HBNB console covering file-based storage and all six model classes. Full credit to the original authors for that foundation.
+
+This fork (`AirBnB_clone_v2`) extends the project with MySQL/SQLAlchemy-backed storage (`DBStorage`), console improvements for parameterized object creation, and additional unit test coverage — part of SE 203's MySQL Storage project.
+
+**Fork maintained by:**
+- Adamu Tajudeen Bawumia <bawumia91@gmail.com>
+- Nesredin Faris
