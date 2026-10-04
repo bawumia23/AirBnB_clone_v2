@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
+import re
 import sys
 from models.base_model import BaseModel
 from models.__init__ import storage
@@ -113,18 +114,68 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
+    def do_create(self, arg):
+        """Creates a new instance of BaseModel/subclass with given
+        parameters.
+
+        Usage: create <Class name> <param1> <param2> ...
+        Format: <key>=<value>
+        """
+        if not arg:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        tokens = re.findall(
+            r'[^\s"]*(?:"(?:\\.|[^\\"])*"[^\s"]*)*', arg
+        )
+        tokens = [t for t in tokens if t]
+
+        class_name = tokens[0]
+        if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
+
+        new_instance = HBNBCommand.classes[class_name]()
+
+        for param in tokens[1:]:
+            parsed = self._parse_param(param)
+            if parsed is not None:
+                key, val = parsed
+                setattr(new_instance, key, val)
+
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
+
+    @staticmethod
+    def _parse_param(param_str):
+        """Parses a single key=value parameter string.
+
+        Returns (key, value) or None if malformed.
+        """
+        pattern = r'^(\w+)=("(?:\\.|[^\\"])*"|-?\d+\.\d+|-?\d+)$'
+        match = re.match(pattern, param_str)
+
+        if not match:
+            return None
+
+        key, raw_val = match.groups()
+
+        if raw_val.startswith('"') and raw_val.endswith('"'):
+            val = raw_val[1:-1]
+            val = val.replace(r'\"', '"')
+            val = val.replace('_', ' ')
+            return key, val
+
+        if '.' in raw_val:
+            try:
+                return key, float(raw_val)
+            except ValueError:
+                return None
+
+        try:
+            return key, int(raw_val)
+        except ValueError:
+            return None
 
     def help_create(self):
         """ Help information for the create method """
