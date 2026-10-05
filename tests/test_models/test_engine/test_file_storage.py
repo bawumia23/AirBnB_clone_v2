@@ -1,11 +1,17 @@
 #!/usr/bin/python3
 """ Module for testing file storage"""
+import os
 import unittest
+from os import getenv
+
 from models.base_model import BaseModel
 from models import storage
-import os
 
 
+@unittest.skipIf(
+    getenv('HBNB_TYPE_STORAGE') == 'db',
+    "Tests only for FileStorage"
+)
 class test_fileStorage(unittest.TestCase):
     """ Class to test the file storage method """
 
@@ -21,7 +27,7 @@ class test_fileStorage(unittest.TestCase):
         """ Remove storage file at end of tests """
         try:
             os.remove('file.json')
-        except:
+        except FileNotFoundError:
             pass
 
     def test_obj_list_empty(self):
@@ -67,7 +73,10 @@ class test_fileStorage(unittest.TestCase):
         storage.reload()
         for obj in storage.all().values():
             loaded = obj
-        self.assertEqual(new.to_dict()['id'], loaded.to_dict()['id'])
+        self.assertEqual(
+            new.to_dict()['id'],
+            loaded.to_dict()['id']
+        )
 
     def test_reload_empty(self):
         """ Load from an empty file """
@@ -88,7 +97,10 @@ class test_fileStorage(unittest.TestCase):
 
     def test_type_path(self):
         """ Confirm __file_path is string """
-        self.assertEqual(type(storage._FileStorage__file_path), str)
+        self.assertEqual(
+            type(storage._FileStorage__file_path),
+            str
+        )
 
     def test_type_objects(self):
         """ Confirm __objects is a dict """

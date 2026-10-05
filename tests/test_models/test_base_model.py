@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 """ """
-from models.base_model import BaseModel
-import unittest
 import datetime
-from uuid import UUID
 import json
 import os
+import unittest
+from uuid import UUID
+
+from models import storage
+from models.base_model import BaseModel
 
 
 class test_basemodel(unittest.TestCase):
@@ -22,10 +24,17 @@ class test_basemodel(unittest.TestCase):
         pass
 
     def tearDown(self):
+        """Clean up test files and database sessions."""
         try:
             os.remove('file.json')
-        except:
+        except FileNotFoundError:
             pass
+
+        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            try:
+                storage._DBStorage__session.rollback()
+            except Exception:
+                pass
 
     def test_default(self):
         """ """
@@ -47,6 +56,10 @@ class test_basemodel(unittest.TestCase):
         with self.assertRaises(TypeError):
             new = BaseModel(**copy)
 
+    @unittest.skipIf(
+        os.getenv('HBNB_TYPE_STORAGE') == 'db',
+        "FileStorage-specific save test"
+    )
     def test_save(self):
         """ Testing save """
         i = self.value()
@@ -59,8 +72,10 @@ class test_basemodel(unittest.TestCase):
     def test_str(self):
         """ """
         i = self.value()
-        self.assertEqual(str(i), '[{}] ({}) {}'.format(self.name, i.id,
-                         i.__dict__))
+        self.assertEqual(
+            str(i),
+            '[{}] ({}) {}'.format(self.name, i.id, i.__dict__)
+        )
 
     def test_todict(self):
         """ """
@@ -97,3 +112,7 @@ class test_basemodel(unittest.TestCase):
         n = new.to_dict()
         new = BaseModel(**n)
         self.assertFalse(new.created_at == new.updated_at)
+
+
+if __name__ == '__main__':
+    unittest.main()

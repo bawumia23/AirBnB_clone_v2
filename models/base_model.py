@@ -3,11 +3,26 @@
 import uuid
 from datetime import datetime
 
+from sqlalchemy import Column, DateTime, String
+from sqlalchemy.ext.declarative import declarative_base
 
-class BaseModel:
+Base = declarative_base()
+
+
+class BaseModel(Base):
     """A base class for all hbnb models"""
+    __abstract__ = True
+
+    id = Column(String(60), primary_key=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
     def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
+        """Instantiates a new model"""
         if not kwargs:
             from models import storage
             self.id = str(uuid.uuid4())
@@ -15,10 +30,14 @@ class BaseModel:
             self.updated_at = datetime.now()
             storage.new(self)
         else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
+            kwargs['updated_at'] = datetime.strptime(
+                kwargs['updated_at'],
+                '%Y-%m-%dT%H:%M:%S.%f'
+            )
+            kwargs['created_at'] = datetime.strptime(
+                kwargs['created_at'],
+                '%Y-%m-%dT%H:%M:%S.%f'
+            )
             del kwargs['__class__']
             self.__dict__.update(kwargs)
 
@@ -36,7 +55,10 @@ class BaseModel:
     def to_dict(self):
         """Convert instance into dict format"""
         dictionary = {}
-        dictionary.update(self.__dict__)
+        for key, value in self.__dict__.items():
+            if key != '_sa_instance_state':
+                dictionary[key] = value
+
         dictionary.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
         dictionary['created_at'] = self.created_at.isoformat()
