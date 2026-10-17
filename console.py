@@ -3,6 +3,8 @@
 import cmd
 import re
 import sys
+
+from sqlalchemy.exc import SQLAlchemyError
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -143,7 +145,12 @@ class HBNBCommand(cmd.Cmd):
                 key, val = parsed
                 setattr(new_instance, key, val)
 
-        new_instance.save()
+        try:
+            new_instance.save()
+        except SQLAlchemyError:
+            print("** unable to create instance **")
+            return
+
         print(new_instance.id)
 
     @staticmethod
