@@ -170,7 +170,6 @@ class HBNBCommand(cmd.Cmd):
         if raw_val.startswith('"') and raw_val.endswith('"'):
             val = raw_val[1:-1]
             val = val.replace(r'\"', '"')
-            val = val.replace('_', ' ')
             return key, val
 
         if '.' in raw_val:
