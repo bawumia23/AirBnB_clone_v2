@@ -37,7 +37,9 @@ class BaseModel:
                 kwargs['created_at']
             )
             kwargs.pop('__class__', None)
-            self.__dict__.update(kwargs)
+
+            for key, value in kwargs.items():
+                setattr(self, key, value)
         else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()

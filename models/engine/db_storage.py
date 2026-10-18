@@ -3,6 +3,7 @@
 from os import getenv
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from models.base_model import Base
@@ -27,13 +28,16 @@ class DBStorage:
         host = getenv('HBNB_MYSQL_HOST')
         database = getenv('HBNB_MYSQL_DB')
 
+        url = URL.create(
+            "mysql+mysqldb",
+            username=user,
+            password=password,
+            host=host,
+            database=database
+        )
+
         self.__engine = create_engine(
-            'mysql+mysqldb://{}:{}@{}/{}'.format(
-                user,
-                password,
-                host,
-                database
-            ),
+            url,
             pool_pre_ping=True
         )
 
