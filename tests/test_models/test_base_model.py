@@ -90,10 +90,12 @@ class test_basemodel(unittest.TestCase):
             new = self.value(**n)
 
     def test_kwargs_one(self):
-        """ """
+        """A single kwarg is enough to build an instance."""
         n = {'Name': 'test'}
-        with self.assertRaises(KeyError):
-            new = self.value(**n)
+        new = self.value(**n)
+        self.assertEqual(new.Name, 'test')
+        self.assertTrue(hasattr(new, 'id'))
+        self.assertTrue(hasattr(new, 'created_at'))
 
     def test_id(self):
         """ """

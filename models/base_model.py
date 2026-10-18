@@ -8,7 +8,10 @@ from os import getenv
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+if getenv('HBNB_TYPE_STORAGE') == 'db':
+    Base = declarative_base()
+else:
+    Base = object
 
 
 class BaseModel:
@@ -30,34 +33,40 @@ class BaseModel:
         """Initialize a new model instance."""
         if kwargs:
             kwargs = kwargs.copy()
-            kwargs['updated_at'] = datetime.fromisoformat(
-                kwargs['updated_at']
-            )
-            kwargs['created_at'] = datetime.fromisoformat(
-                kwargs['created_at']
-            )
             kwargs.pop('__class__', None)
+
+            for date_key in ('created_at', 'updated_at'):
+                if date_key in kwargs:
+                    if isinstance(kwargs[date_key], str):
+                        kwargs[date_key] = datetime.fromisoformat(
+                            kwargs[date_key]
+                        )
+                else:
+                    kwargs[date_key] = datetime.utcnow()
+
+            if 'id' not in kwargs:
+                kwargs['id'] = str(uuid.uuid4())
 
             for key, value in kwargs.items():
                 setattr(self, key, value)
         else:
             self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
-
-            from models import storage
-            storage.new(self)
+            self.created_at = datetime.utcnow()
+            self.updated_at = datetime.utcnow()
 
     def __str__(self):
         """Return a string representation of the instance."""
         cls = type(self).__name__
-        return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
+        data = self.__dict__.copy()
+        data.pop('_sa_instance_state', None)
+        return '[{}] ({}) {}'.format(cls, self.id, data)
 
     def save(self):
         """Update the timestamp and save the instance."""
         from models import storage
 
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.utcnow()
+        storage.new(self)
         storage.save()
 
     def to_dict(self):
