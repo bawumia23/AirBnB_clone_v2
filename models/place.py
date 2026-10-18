@@ -36,6 +36,11 @@ class Place(BaseModel, Base):
             'User',
             back_populates='places'
         )
+        reviews = relationship(
+            'Review',
+            back_populates='place',
+            cascade='all, delete-orphan'
+        )
         cities = relationship(
             'City',
             back_populates='places'
@@ -53,3 +58,15 @@ class Place(BaseModel, Base):
         latitude = 0.0
         longitude = 0.0
         amenity_ids = []
+
+    if getenv('HBNB_TYPE_STORAGE') != 'db':
+        @property
+        def reviews(self):
+            """Return reviews associated with this place."""
+            from models import storage
+            from models.review import Review
+
+            return [
+                review for review in storage.all(Review).values()
+                if review.place_id == self.id
+            ]
