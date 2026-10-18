@@ -37,6 +37,7 @@ class TestDBStorage(unittest.TestCase):
         """Test adding an object to the database session."""
         obj = State()
         obj.name = 'California'
+        self.storage.new(obj)
 
         key = 'State.{}'.format(obj.id)
 
@@ -46,6 +47,7 @@ class TestDBStorage(unittest.TestCase):
         """Test saving an object to the database."""
         obj = State()
         obj.name = 'California'
+        self.storage.new(obj)
 
         key = 'State.{}'.format(obj.id)
 
@@ -57,6 +59,7 @@ class TestDBStorage(unittest.TestCase):
         """Test deleting an object from the database."""
         obj = State()
         obj.name = 'California'
+        self.storage.new(obj)
 
         key = 'State.{}'.format(obj.id)
 
