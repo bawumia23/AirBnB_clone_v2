@@ -3,6 +3,7 @@
 from os import getenv
 
 from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from models.base_model import BaseModel, Base
 
@@ -30,6 +31,15 @@ class Place(BaseModel, Base):
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float, nullable=True)
         longitude = Column(Float, nullable=True)
+
+        user = relationship(
+            'User',
+            back_populates='places'
+        )
+        cities = relationship(
+            'City',
+            back_populates='places'
+        )
         amenity_ids = []
     else:
         city_id = ""

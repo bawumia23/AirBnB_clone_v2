@@ -3,6 +3,7 @@
 from os import getenv
 
 from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy.orm import relationship
 
 from models.base_model import BaseModel, Base
 
@@ -18,6 +19,12 @@ class City(BaseModel, Base):
             nullable=False
         )
         name = Column(String(128), nullable=False)
+
+        places = relationship(
+            'Place',
+            back_populates='cities',
+            cascade='all, delete-orphan'
+        )
     else:
         state_id = ""
         name = ""
