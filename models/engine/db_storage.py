@@ -13,6 +13,7 @@ from models.user import User
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
+from models.place_amenity import PlaceAmenity
 
 
 class DBStorage:
@@ -54,7 +55,8 @@ class DBStorage:
             User,
             Amenity,
             Place,
-            Review
+            Review,
+            PlaceAmenity
         ]
 
         if cls is not None:
@@ -62,7 +64,13 @@ class DBStorage:
 
         for model in classes:
             for obj in self.__session.query(model).all():
-                key = '{}.{}'.format(type(obj).__name__, obj.id)
+                if isinstance(obj, PlaceAmenity):
+                    key = 'PlaceAmenity.{}.{}'.format(
+                        obj.place_id, obj.amenity_id
+                    )
+                else:
+                    key = '{}.{}'.format(type(obj).__name__, obj.id)
+
                 objects[key] = obj
 
         return objects
