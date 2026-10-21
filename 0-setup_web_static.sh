@@ -55,10 +55,11 @@ server {
 }
 NGINX
 
-# Test the configuration and restart Nginx
+# Test the configuration and restart or start Nginx
 nginx -t
-if command -v systemctl >/dev/null 2>&1; then
-    systemctl restart nginx
-else
+
+if service nginx status >/dev/null 2>&1; then
     service nginx restart
+else
+    service nginx start
 fi
