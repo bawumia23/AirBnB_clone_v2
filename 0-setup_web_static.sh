@@ -31,6 +31,19 @@ chmod 755 /data/web_static/shared
 chmod 755 /data/web_static/releases/test
 chmod 644 /data/web_static/releases/test/index.html
 
+# Ensure the required ubuntu user and group exist
+if ! getent group ubuntu >/dev/null; then
+    groupadd --system ubuntu
+fi
+
+if ! id ubuntu >/dev/null 2>&1; then
+    useradd --system --gid ubuntu --no-create-home \
+        --shell /usr/sbin/nologin ubuntu
+fi
+
+# Set ownership required by the assignment
+chown -R ubuntu:ubuntu /data
+
 # Create the current symbolic link
 ln -sfn /data/web_static/releases/test /data/web_static/current
 
