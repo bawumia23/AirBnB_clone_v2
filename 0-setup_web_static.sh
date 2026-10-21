@@ -1,58 +1,51 @@
 #!/usr/bin/env bash
-# Set up Nginx and the web_static deployment directories
+# Sets up web servers for the deployment of web_static
 
-# Install Nginx if it is not already installed
-if ! command -v nginx >/dev/null 2>&1; then
-    apt-get update
-    apt-get install -y nginx
+# Install Nginx if not already installed
+if ! command -v nginx &> /dev/null; then
+    sudo apt-get update
+    sudo apt-get install -y nginx
 fi
 
-# Create the required directories
-mkdir -p /data/web_static/releases/test
-mkdir -p /data/web_static/shared
+# Create required folders
+sudo mkdir -p /data/web_static/releases/test/
+sudo mkdir -p /data/web_static/shared/
 
-# Create a simple HTML file for testing
-cat > /data/web_static/releases/test/index.html <<'HTML'
-<!DOCTYPE html>
-<html>
+# Create a fake HTML file for testing
+echo "<html>
   <head>
-    <title>Web Static Test</title>
   </head>
   <body>
-    <h1>Web Static is working!</h1>
+    School
   </body>
-</html>
-HTML
+</html>" | sudo tee /data/web_static/releases/test/index.html > /dev/null
 
-# Recreate the current symbolic link
-rm -rf /data/web_static/current
-ln -s /data/web_static/releases/test /data/web_static/current
-
-# Give ubuntu ownership of the entire deployment directory
-if id ubuntu >/dev/null 2>&1; then
-    chown -R ubuntu:ubuntu /data
-else
-    chown -R "$(whoami):$(id -gn)" /data
+# Create or recreate the symbolic link
+if [ -L /data/web_static/current ]; then
+    sudo rm /data/web_static/current
 fi
-# Configure Nginx to serve the static files
-cat > /etc/nginx/sites-available/default <<'NGINX'
-server {
+sudo ln -s /data/web_static/releases/test/ /data/web_static/current
+
+# Give recursive ownership of /data/ to ubuntu user and group
+sudo chown -R ubuntu:ubuntu /data/
+
+# Update Nginx configuration to serve /data/web_static/current/ at /hbnb_static
+nginx_config="server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
     root /var/www/html;
-    index index.html index.htm;
+    index index.html index.htm index.nginx-debian.html;
 
     server_name _;
 
-    location /hbnb_static/ {
+    location /hbnb_static {
         alias /data/web_static/current/;
-        index index.html;
+        index index.html index.htm;
     }
-}
-NGINX
+}"
 
-# Test configuration before restarting Nginx
-nginx -t && systemctl restart nginx
+echo "$nginx_config" | sudo tee /etc/nginx/sites-available/default > /dev/null
 
-exit 0
+# Restart Nginx
+sudo service nginx restart
