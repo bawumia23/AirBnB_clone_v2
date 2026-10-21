@@ -2,3 +2,9 @@ __pycache__/
 *.pyc
 file.json
 .env
+
+# Local Python virtual environment
+.venv-fabric/
+
+# Generated deployment archives
+versions/
