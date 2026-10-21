@@ -41,12 +41,12 @@ if ! id ubuntu >/dev/null 2>&1; then
         --shell /usr/sbin/nologin ubuntu
 fi
 
-# Set ownership required by the assignment
-chown -R ubuntu:ubuntu /data
-
 # Create the current symbolic link
 ln -sfn /data/web_static/releases/test /data/web_static/current
 
+# Set the required ownership after creating all paths
+chown -R ubuntu:ubuntu /data
+chown -h ubuntu:ubuntu /data/web_static/current
 # Configure Nginx to serve the static test page
 cat > /etc/nginx/sites-available/default <<'NGINX'
 server {
