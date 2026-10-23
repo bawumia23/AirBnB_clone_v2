@@ -16,22 +16,22 @@ def do_deploy(archive_path):
 
     try:
         filename = os.path.basename(archive_path)
-        release_name = os.path.splitext(filename)[0]
+        release_name = filename.split('.')[0]
         release_path = "/data/web_static/releases/{}".format(
             release_name
         )
         archive_remote = "/tmp/{}".format(filename)
         current_link = "/data/web_static/current"
 
-        put(archive_path, archive_remote)
+        put(archive_path, "/tmp/")
 
         run("mkdir -p {}".format(release_path))
         run("tar -xzf {} -C {}".format(
             archive_remote, release_path
         ))
-        run("rm -f {}".format(archive_remote))
+        run("rm {}".format(archive_remote))
 
-        run("mv {}/web_static/. {}/".format(
+        run("mv {}/web_static/* {}".format(
             release_path, release_path
         ))
         run("rm -rf {}/web_static".format(release_path))
@@ -41,8 +41,6 @@ def do_deploy(archive_path):
             release_path, current_link
         ))
 
-        print("New version deployed!")
         return True
-    except Exception as error:
-        print("Deployment failed: {}".format(error))
+    except Exception:
         return False
