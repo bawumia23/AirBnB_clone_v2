@@ -11,7 +11,7 @@ env.hosts = ['<IP web-01>', '<IP web-02>']
 
 def do_deploy(archive_path):
     """Distributes an archive to web servers."""
-    if not os.path.exists(archive_path):
+    if not archive_path or not os.path.isfile(archive_path):
         return False
 
     try:
@@ -29,7 +29,7 @@ def do_deploy(archive_path):
         run("tar -xzf {} -C {}".format(
             archive_remote, release_path
         ))
-        run("rm {}".format(archive_remote))
+        run("rm -f {}".format(archive_remote))
 
         run("mv {}/web_static/. {}/".format(
             release_path, release_path
@@ -43,5 +43,6 @@ def do_deploy(archive_path):
 
         print("New version deployed!")
         return True
-    except Exception:
+    except Exception as error:
+        print("Deployment failed: {}".format(error))
         return False
